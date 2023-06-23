@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import ContactForm from './ContactForm/ContactForm';
 import Contacts from './Contacts/Contacts';
 import Filter from './Filter/Filter';
@@ -6,56 +6,53 @@ import { WrapperContent } from './App.styled';
 import { nanoid } from 'nanoid';
 import Notiflix from 'notiflix';
 
-export class App extends Component {
-  state = {
-    contacts: [],
-    filter: '',
-  };
+const CONTACTS = 'contacts';
+const initialContacts = [
+  { id: nanoid(), name: 'Rosie Simpson', number: '459-12-56' },
+  { id: nanoid(), name: 'Hermione Kline', number: '443-89-12' },
+  { id: nanoid(), name: 'Eden Clements', number: '645-17-79' },
+  { id: nanoid(), name: 'Annie Copeland', number: '227-91-26' },
+];
 
-  componentDidMount() {
-    const contactsLS = JSON.parse(localStorage.getItem('contacts'));
-    if (contactsLS) {
-      this.setState({ contacts: contactsLS });
-    }
-  }
+export const App = () => {
+  const [contacts, setContacts] = useState(
+    () => JSON.parse(window.localStorage.getItem(CONTACTS)) ?? initialContacts
+  );
 
-  componentDidUpdate(_, prevState) {
-    const { contacts } = this.state;
-    if (prevState.contacts !== contacts) {
-      localStorage.setItem('contacts', JSON.stringify(contacts));
-    }
-  }
+  useEffect(() => {
+    window.localStorage.setItem(CONTACTS, JSON.stringify(contacts));
+  }, [contacts]);
+  const [filter, setFilter] = useState('');
 
-  creatContact = ({ name, number }) => {
-    const contact = {
-      id: nanoid(),
-      name,
-      number,
-    };
-
+  const creatContact = ({ name, number }) => {
     if (
-      this.state.contacts.find(
-        existingContact => existingContact.name === contact.name
+      contacts.some(
+        existingContact =>
+          existingContact.name.toLowerCase() === name.toLowerCase()
       )
     ) {
-      Notiflix.Notify.failure(`Contact ${contact.name} is already`);
+      Notiflix.Notify.failure(`Contact ${name} is already`);
     } else {
-      this.setState(prevState => ({
-        contacts: [contact, ...prevState.contacts],
-      }));
-      Notiflix.Notify.success(
-        `Contact ${contact.name} added to  your phonebook`
-      );
+      setContacts(old => {
+        const list = [...old];
+        list.push({
+          id: nanoid(),
+          name: name,
+          number: number,
+        });
+        Notiflix.Notify.success(`Contact ${name} added to  your phonebook`);
+        return list;
+      });
     }
   };
 
-  deleteContact = contactId => {
+  const deleteContact = contactId => {
     this.setState(prevState => ({
       contacts: prevState.contacts.filter(contact => contact.id !== contactId),
     }));
   };
 
-  getFiltredContacts = () => {
+  const getFiltredContacts = () => {
     const { contacts, filter } = this.state;
 
     const filtredContacts = contacts.filter(contact =>
@@ -63,23 +60,18 @@ export class App extends Component {
     );
     return filtredContacts;
   };
-  hadleFilterChange = e => {
-    this.setState({ filter: e.target.value });
+  const hadleFilterChange = e => {
+    setFilter(e.currentTarget.value);
   };
 
-  render() {
-    return (
-      <WrapperContent>
-        <ContactForm creatContact={this.creatContact} />
-        <Filter
-          value={this.state.filter}
-          onChange={this.hadleFilterChange}
-        ></Filter>
-        <Contacts
-          deleteContact={this.deleteContact}
-          contacts={this.getFiltredContacts()}
-        ></Contacts>
-      </WrapperContent>
-    );
-  }
-}
+  return (
+    <WrapperContent>
+      <ContactForm creatContact={creatContact} />
+      <Filter value={filter} onChange={hadleFilterChange}></Filter>
+      <Contacts
+        deleteContact={deleteContact}
+        contacts={getFiltredContacts()}
+      ></Contacts>
+    </WrapperContent>
+  );
+};
