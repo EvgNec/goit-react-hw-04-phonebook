@@ -2,15 +2,26 @@ import { useState } from 'react';
 import { Input, AddButton, Form, Title } from './ContactForm.styled';
 import PropTypes from 'prop-types';
 
-const ContactForm = ({ addContact }) => {
+const ContactForm = ({ creatContact }) => {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
 
-  const handleChange = ({ e }) => {
-    e.preventDefault();
-    addContact({ name, number });
-    setName('');
-    setNumber('');
+  const handleChange = ({ target }) => {
+   const { name, value } = target;
+    switch (name) {
+      case 'name': {
+        setName(value);
+        break;
+      }
+      case 'number': {
+        setNumber(value);
+        break;
+      }
+
+      default: {
+        console.log('There is no such input like that');
+      }
+    }
   };
 
   return (
@@ -19,7 +30,7 @@ const ContactForm = ({ addContact }) => {
       <Form
         onSubmit={evt => {
           evt.preventDefault(); // відміняємо стандартну поведінку браузера
-          addContact({ name, number }); // додаємо контакт
+          creatContact({ name, number }); // додаємо контакт
           setName(''); // очищаємо поля
           setNumber(''); // очищаємо поля
         }}
@@ -53,5 +64,5 @@ const ContactForm = ({ addContact }) => {
 export default ContactForm;
 
 ContactForm.propTypes = {
-  addContact: PropTypes.func.isRequired,
+  creatContact: PropTypes.func.isRequired,
 };
