@@ -1,18 +1,12 @@
-import { useState, useEffect } from 'react';
+
 import ContactForm from './ContactForm/ContactForm';
 import Contacts from './Contacts/Contacts';
 import Filter from './Filter/Filter';
 import { WrapperContent } from './App.styled';
 import { nanoid } from 'nanoid';
 import Notiflix from 'notiflix';
-// import initialContacts from './contacts.json';
-
-const initialContacts = [
-  { id: nanoid(), name: 'Rosie Simpson', number: '459-12-56' },
-  { id: nanoid(), name: 'Hermione Kline', number: '443-89-12' },
-  { id: nanoid(), name: 'Eden Clements', number: '645-17-79' },
-  { id: nanoid(), name: 'Annie Copeland', number: '227-91-26' },
-];
+import { useState, useEffect } from 'react';
+import initialContacts from './contacts.json';
 
 export const App = () => {
 	const [contacts, setContacts] = useState(
@@ -68,10 +62,10 @@ export const App = () => {
     <WrapperContent>
       <ContactForm creatContact={creatContact} />
       <Filter value={filter} onChange={hadleFilterChange}></Filter>
-     {( contacts.length > 0) && ( <Contacts
+        <Contacts
         deleteContact={deleteContact}
         contacts={getFiltredContacts()}
-      ></Contacts>   )}
+      ></Contacts>  
     </WrapperContent>
   );
 };
